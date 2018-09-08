@@ -27,9 +27,11 @@ site. The 10 character HP Proliant serial number is broken into 5 parts.
 4. Week of manufacture
 5. Unique unit identifier.
 
-Ex. USE7231983
+```
+Ex. USE7231092
 US | E | 7 | 23 | 1092
  1   2   3   4      5
+```
 
 ## Assumptions About the Estimation
 * It is not clear that the week number in the serial is 0-indexed.
