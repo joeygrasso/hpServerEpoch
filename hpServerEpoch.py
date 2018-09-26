@@ -21,29 +21,41 @@ def main():
     description_text = ("Convert HP Server Serial Numbers Into Estimated Date "
         "of Manufacture")
     parser = argparse.ArgumentParser(description=description_text)
-    parser.add_argument("--date", "-d", 
+    parser.add_argument("-d", "--date", 
          help="output includes the estimated dates of manufacture", action="store_true")
-    parser.add_argument("serial", action="store", help="HP Server Serial",
+    parser.add_argument("-u", "--human", 
+         help="output is returned in natural language form ", action="store_true")
+    parser.add_argument("serial", action="store", nargs="+", help="HP Server Serial",
          type=str)
     args = parser.parse_args()
 
     # Is the input a valid Serial
     if validateInput(args.serial):
-        server_epoch = calculateDateRange(args.serial[3:6])
-        # If -d or --date flag is set use more verbose output
-        if args.date:
-            print("The server {0} estimated date of manufacture is between {1} and {2}"
-                .format(
-                    args.serial, 
-                    server_epoch['week_start'].strftime("%B %d, %Y"), 
-                    server_epoch['week_end'].strftime("%B %d, %Y"))
-                 )
+        server_epochs = calculateDateRange(args.serial[3:6])
+        # If -u or --human flag is set use natural language output
+        if args.human:
+            # If -d or --date flag is set use more verbose output
+            if args.date:
+                print("The server {0} estimated date of manufacture is between {1} and {2}"
+                    .format(
+                        args.serial, 
+                        server_epoch['week_start'].strftime("%B %d, %Y"),
+                        server_epoch['week_end'].strftime("%B %d, %Y"))
+                    )
+            else:
+                print("The server {0} estimated date of manufacture is {1} {2}".format(
+                        args.serial, 
+                        server_epoch['week_start'].strftime("%B"),
+                        server_epoch['manufacture_year'])
+                    )
         else:
-            print("The server {0} estimated date of manufacture is {1} {2}".format(
-                    args.serial, 
-                    server_epoch['week_start'].strftime("%B"), 
-                    server_epoch['manufacture_year'])
-                 )
+            # Default output to ISO-8601 YYYY-MM-DD
+            print("Serial\t\tYYYY-MM")
+            print("{0}\t{1}-{2}".format(
+                args.serial,
+                server_epoch['manufacture_year'],
+                server_epoch['week_start'].strftime("%m"))
+            )
     else:
         print("Please check your input and ensure it is a valid serial "
             "number.")
@@ -51,9 +63,13 @@ def main():
 def validateInput(serial):
     # Valid if:
       # Serial is 10 Chars long && The 4-6 Char are numbers
-    if len(serial) == 10 and serial[3:6].isdigit():
-        return True
-    return False
+    for s in serial:
+        if len(s) == 10 and s[3:6].isdigit():
+            continue
+        else:
+            return False
+    return True
+
 
 def calculateDateRange(serial_nums):
     # This assumes the server manufacture date is within the same decade.
