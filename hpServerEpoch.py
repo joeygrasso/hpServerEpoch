@@ -18,8 +18,8 @@ from datetime import timedelta
 import argparse
 
 def main():
-    description_text = ("Convert HP Server Serial Numbers Into Estimated Date "
-        "of Manufacture")
+    description_text = ("Convert HP Server Serial Numbers Into Estimated Date"
+        " of Manufacture")
     parser = argparse.ArgumentParser(description=description_text)
     parser.add_argument("-d", "--date", 
          help="output includes the estimated dates of manufacture", action="store_true")
@@ -49,13 +49,25 @@ def main():
                         server_epoch['manufacture_year'])
                     )
         else:
-            # Default output to ISO-8601 YYYY-MM-DD
-            print("Serial\t\tYYYY-MM")
-            print("{0}\t{1}-{2}".format(
-                args.serial,
-                server_epoch['manufacture_year'],
-                server_epoch['week_start'].strftime("%m"))
-            )
+            # Default output to ISO-8601 YYYY-MM
+            if args.date:
+                print("Serial\t\tStart Date\tEnd Date")
+                print("{0}\t{1}-{2}-{3}\t{4}-{5}-{6}".format(
+                    args.serial,
+                    server_epoch['manufacture_year'],
+                    server_epoch['week_start'].strftime("%m"),
+                    server_epoch['week_start'].strftime("%d"),
+                    server_epoch['manufacture_year'],
+                    server_epoch['week_end'].strftime("%m"),
+                    server_epoch['week_end'].strftime("%d"))
+                )
+            else:
+                print("Serial\t\tYYYY-MM")
+                print("{0}\t{1}-{2}".format(
+                    args.serial,
+                    server_epoch['manufacture_year'],
+                    server_epoch['week_start'].strftime("%m"))
+                )
     else:
         print("Please check your input and ensure it is a valid serial "
             "number.")
